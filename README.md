@@ -3,10 +3,36 @@ joy_feedback_ros
 
 Create a simple ros node to allow setting rumble force feedback on a Xbox wired controller (and perhaps logitech F510 and anything else that is simlar) using fftest.c as a starting point.  Later try to integrate this into the proper https://github.com/ros-drivers/joystick_drivers repository.
 
+https://www.kernel.org/doc/Documentation/input/ff.txt
+
+    - FF_CONSTANT can render constant force effects
+    - FF_PERIODIC can render periodic effects with the following waveforms:
+      - FF_SQUARE   square waveform
+      - FF_TRIANGLE   triangle waveform
+      - FF_SINE   sine waveform
+      - FF_SAW_UP   sawtooth up waveform
+      - FF_SAW_DOWN   sawtooth down waveform
+      - FF_CUSTOM   custom waveform
+    - FF_RAMP       can render ramp effects
+    - FF_SPRING can simulate the presence of a spring
+    - FF_FRICTION can simulate friction
+    - FF_DAMPER can simulate damper effects
+    - FF_RUMBLE rumble effects
+    - FF_INERTIA    can simulate inertia
+    - FF_GAIN gain is adjustable
+    - FF_AUTOCENTER autocenter is adjustable
+
+    Note: In most cases you should use FF_PERIODIC instead of FF_RUMBLE. All
+      devices that support FF_RUMBLE support FF_PERIODIC (square, triangle,
+      sine) and the other way around.
+
+My current forcefeedback device:
 
     $ lsusb
     Bus 002 Device 003: ID 045e:028e Microsoft Corp. Xbox360 Controller
 
+
+Test it with fftest:
 
 https://github.com/flosse/linuxconsole/blob/master/utils/fftest.c
 
