@@ -1,0 +1,2 @@
+uint16 strong_magnitude
+uint16 weak_magnitude
