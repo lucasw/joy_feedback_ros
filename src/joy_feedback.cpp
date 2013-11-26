@@ -38,6 +38,7 @@ private:
 void JoyFeedback::playCallback(const std_msgs::UInt16::ConstPtr& msg)
 {
   const int ind = msg->data;
+  ROS_INFO_STREAM("play " << ind);
   if (ind >= effects_.size()) {
     ROS_WARN_STREAM("play index is too big " << ind << " " << effects_.size()
       << " " << strerror(errno)); 
@@ -62,6 +63,8 @@ void JoyFeedback::rumbleCallback(const joy_feedback_ros::Rumble::ConstPtr& msg)
 {
   //ros
   if (!initted_) return;
+  
+  ROS_INFO_STREAM("rumble set " << msg->strong_magnitude << " " << msg->weak_magnitude);
 
   const int ind = 0;
   effects_[ind].type = FF_RUMBLE;

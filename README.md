@@ -3,6 +3,19 @@ joy_feedback_ros
 
 Create a simple ros node to allow setting rumble force feedback on a Xbox wired controller (and perhaps logitech F510 and anything else that is simlar) using fftest.c as a starting point.  Later try to integrate this into the proper https://github.com/ros-drivers/joystick_drivers repository.
 
+Current usage
+=============
+
+Set a strong and weak magnitude to 18000 and then play the (hard-coded) index 0
+
+    rostopic pub -1 /rumble joy_feedback_ros/Rumble 18000 18000
+    rostopic pub /play std_msgs/UInt16 0
+
+
+
+Useful information
+==================
+
 https://www.kernel.org/doc/Documentation/input/ff.txt
 
     - FF_CONSTANT can render constant force effects
