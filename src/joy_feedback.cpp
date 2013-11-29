@@ -21,11 +21,13 @@ public:
   
 private:
   void rumbleCallback(const joy_feedback_ros::Rumble::ConstPtr& msg);
+  void periodicCallback(const joy_feedback_ros::Periodic::ConstPtr& msg);
   void playCallback(const std_msgs::UInt16::ConstPtr& msg);
   bool init();
   ros::NodeHandle nh_;
 
   ros::Subscriber rumble_sub_;
+  ros::Subscriber periodic_sub_;
   ros::Subscriber play_sub_;
 
   std::string device_;
@@ -57,11 +59,8 @@ void JoyFeedback::playCallback(const std_msgs::UInt16::ConstPtr& msg)
   }
 }
 
-
-
 void JoyFeedback::rumbleCallback(const joy_feedback_ros::Rumble::ConstPtr& msg)
 {
-  //ros
   if (!initted_) return;
   
   ROS_INFO_STREAM("rumble set " << msg->strong_magnitude << " " << msg->weak_magnitude);
@@ -71,8 +70,50 @@ void JoyFeedback::rumbleCallback(const joy_feedback_ros::Rumble::ConstPtr& msg)
   effects_[ind].id = -1;
   effects_[ind].u.rumble.strong_magnitude = msg->strong_magnitude;
   effects_[ind].u.rumble.weak_magnitude   = msg->weak_magnitude;
-  effects_[ind].replay.length = 5000;
-  effects_[ind].replay.delay = 1000;
+  //effects_[ind].direction = 0x4000;  // TBD does anything for rumble?
+  effects_[ind].replay.length = 4000; // 4 seconds
+  effects_[ind].replay.delay = 100;
+
+  if (ioctl(fd_, EVIOCSFF, &effects_[ind]) < 0) {
+    ROS_WARN_STREAM("ioctl upload effect " << ind << " " << strerror(errno));
+  }
+}
+
+void JoyFeedback::periodicCallback(const joy_feedback_ros::Periodic::ConstPtr& msg)
+{
+  if (!initted_) return;
+  
+  ROS_INFO_STREAM("periodic set " << int(msg->waveform) << " " << msg->period 
+      << " " << msg->magnitude);
+
+  const int ind = 0;
+  effects_[ind].type = FF_PERIODIC;
+  effects_[ind].id = -1;
+  
+  if (msg->waveform == joy_feedback_ros::Periodic::WAVEFORM_FF_SQUARE)
+    effects_[ind].u.periodic.waveform = FF_SQUARE;
+  else if (msg->waveform == joy_feedback_ros::Periodic::WAVEFORM_FF_TRIANGLE)
+    effects_[ind].u.periodic.waveform = FF_TRIANGLE;
+  else if (msg->waveform == joy_feedback_ros::Periodic::WAVEFORM_FF_SINE)
+    effects_[ind].u.periodic.waveform = FF_SINE;
+  else if (msg->waveform == joy_feedback_ros::Periodic::WAVEFORM_FF_SAW_UP)
+    effects_[ind].u.periodic.waveform = FF_SAW_UP;
+  else if (msg->waveform == joy_feedback_ros::Periodic::WAVEFORM_FF_SAW_DOWN)
+    effects_[ind].u.periodic.waveform = FF_SAW_DOWN;
+  
+  effects_[ind].u.periodic.period = msg->period;
+  effects_[ind].u.periodic.magnitude = msg->magnitude;
+  effects_[ind].u.periodic.offset = msg->offset;
+  effects_[ind].u.periodic.phase = msg->phase;
+  effects_[ind].u.periodic.envelope.attack_length = msg->envelope.attack_length;
+  effects_[ind].u.periodic.envelope.attack_level = msg->envelope.attack_level;
+  effects_[ind].u.periodic.envelope.fade_length = msg->envelope.fade_length;
+  effects_[ind].u.periodic.envelope.fade_level = msg->envelope.fade_level;
+  effects_[ind].trigger.button = 0x0; 
+  effects_[ind].trigger.interval = 0; 
+  effects_[ind].direction = 0x4000; 
+  effects_[ind].replay.length = 4000;
+  effects_[ind].replay.delay = 100;
 
   if (ioctl(fd_, EVIOCSFF, &effects_[ind]) < 0) {
     ROS_WARN_STREAM("ioctl upload effect " << ind << " " << strerror(errno));
@@ -83,13 +124,16 @@ JoyFeedback::JoyFeedback() :
   fd_(0)
 {
   rumble_sub_ = nh_.subscribe<joy_feedback_ros::Rumble>("rumble", 1, &JoyFeedback::rumbleCallback, this);
+  periodic_sub_ = nh_.subscribe<joy_feedback_ros::Periodic>("periodic", 1, &JoyFeedback::periodicCallback, this);
   play_sub_ = nh_.subscribe("play", 1, &JoyFeedback::playCallback, this);
   initted_ = init();
 }
 
 bool JoyFeedback::init()
 {
-  ros::param::param<std::string>("feedback_device", device_, "/dev/input/event13");
+  ros::param::param<std::string>("device", device_, "/dev/input/event13");
+
+  ROS_INFO_STREAM("device " << device_);
 
   fd_ = open(device_.c_str(), O_RDWR);
   if (fd_ == -1) {

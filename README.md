@@ -8,10 +8,18 @@ Current usage
 
 Set a strong and weak magnitude to 18000 and then play the (hard-coded) index 0
 
+    roslaunch joy_feedback_ros joy_feedback.launch 
     rostopic pub -1 /rumble joy_feedback_ros/Rumble 18000 18000
-    rostopic pub /play std_msgs/UInt16 0
+    rostopic pub /play std_msgs/UInt16 1
 
 
+A sine effect:
+
+    rostopic pub /periodic joy_feedback_ros/Periodic  '{waveform: 2, period: 100, magnitude: 12000, offset: 0, phase: 0, envelope:  {attack_length: 200, attack_level: 0, fade_length: 200, fade_level: 0}}'
+    rostopic pub /play std_msgs/UInt16 1
+
+
+SAW_UP and SAW_DOWN don't work on the Xbox 360 controller, it produces an 'Invalid argument' from ioctl.
 
 Useful information
 ==================

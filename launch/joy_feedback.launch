@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+<param name="device" value="/dev/input/event13" />
+<node name="joy_feedback_ros1" pkg="joy_feedback_ros" type="joy_feedback" output="screen">
+</node>
+</launch>
