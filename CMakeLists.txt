@@ -124,7 +124,7 @@ target_link_libraries(joy_feedback
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS joy_feedback_ros joy_feedback
+install(TARGETS joy_feedback
    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
