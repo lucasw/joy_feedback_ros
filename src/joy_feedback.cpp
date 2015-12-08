@@ -1,14 +1,16 @@
-// Copyright Lucas Walter November 2013
+// Copyright 2013 Lucas Walter
+// November 2013
 //
 
 #include <errno.h>
 #include <fcntl.h>
-#include <sys/ioctl.h>
 #include <linux/input.h>
-
 #include <ros/ros.h>
 #include <std_msgs/Float32.h>
 #include <std_msgs/UInt16.h>
+#include <string>
+#include <sys/ioctl.h>
+#include <vector>
 
 #include "joy_feedback_ros/Envelope.h"
 #include "joy_feedback_ros/Rumble.h"
@@ -17,7 +19,6 @@
 class JoyFeedback
 {
 public:
-
   JoyFeedback();
 
 private:
@@ -33,7 +34,7 @@ private:
 
   std::string device_;
   int fd_;
-  unsigned long features_[4];
+  uint32_t features_[4];
   std::vector<struct ff_effect> effects_;
   bool initted_;
 };
@@ -73,8 +74,8 @@ void JoyFeedback::rumbleCallback(const joy_feedback_ros::Rumble::ConstPtr& msg)
   effects_[ind].id = -1;
   effects_[ind].u.rumble.strong_magnitude = msg->strong_magnitude;
   effects_[ind].u.rumble.weak_magnitude   = msg->weak_magnitude;
-  //effects_[ind].direction = 0x4000;  // TBD does anything for rumble?
-  effects_[ind].replay.length = 4000; // 4 seconds
+  // effects_[ind].direction = 0x4000;  // TBD does anything for rumble?
+  effects_[ind].replay.length = 4000;  // 4 seconds
   effects_[ind].replay.delay = 100;
 
   if (ioctl(fd_, EVIOCSFF, &effects_[ind]) < 0)
@@ -147,7 +148,7 @@ bool JoyFeedback::init()
     return false;
   }
 
-  if (ioctl(fd_, EVIOCGBIT(EV_FF, sizeof(unsigned long) * 4), features_) < 0)
+  if (ioctl(fd_, EVIOCGBIT(EV_FF, sizeof(uint32_t) * 4), features_) < 0)
   {
     ROS_WARN_STREAM("ioctl feature query " << strerror(errno));
     return false;
