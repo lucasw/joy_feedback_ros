@@ -137,7 +137,7 @@ JoyFeedback::JoyFeedback() :
 
 bool JoyFeedback::init()
 {
-  ros::param::param<std::string>("device", device_, "/dev/input/event13");
+  ros::param::param<std::string>("~device", device_, "/dev/input/event13");
 
   ROS_INFO_STREAM("device " << device_);
 
