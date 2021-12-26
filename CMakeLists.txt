@@ -1,13 +1,15 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(joy_feedback_ros)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  message_generation
   roscpp
   roslint
-  std_msgs message_generation)
+  std_msgs
+)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -48,8 +50,8 @@ roslint_cpp()
 add_message_files(
   FILES
   Envelope.msg
-  Rumble.msg
   Periodic.msg
+  Rumble.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -106,7 +108,7 @@ add_executable(joy_feedback src/joy_feedback.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(joy_feedback joy_feedback_ros_generate_messages_cpp)
+add_dependencies(joy_feedback ${PROJECT_NAME}_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(joy_feedback
